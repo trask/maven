@@ -320,6 +320,7 @@ public class MavenCli
             File logFile = new File( cliRequest.commandLine.getOptionValue( CLIManager.LOG_FILE ) );
             logFile = resolveFile( logFile, cliRequest.workingDirectory );
             System.setProperty("org.slf4j.simpleLogger.logFile", logFile.getAbsolutePath());
+            System.setProperty("log4j.configurationFile", logFile.getAbsolutePath());
         }
 
         plexusLoggerManager = new Slf4jLoggerManager();       
