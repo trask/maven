@@ -324,7 +324,7 @@ public class MavenCli
 
         plexusLoggerManager = new Slf4jLoggerManager();       
         slf4jLoggerFactory = LoggerFactory.getILoggerFactory();
-        slf4jLogger = slf4jLoggerFactory.getLogger(this.getClass().getName());
+        slf4jLogger = LoggerFactory.getLogger(this.getClass().getName());
     }
 
     private void version( CliRequest cliRequest )
@@ -875,11 +875,11 @@ public class MavenCli
         }
         else if ( request.isInteractiveMode() )
         {
-            transferListener = new ConsoleMavenTransferListener( slf4jLogger );
+            transferListener = new ConsoleMavenTransferListener( LoggerFactory.getLogger( "consoleTransfer" ) );
         }
         else
         {
-            transferListener = new BatchModeMavenTransferListener( slf4jLogger );
+            transferListener = new BatchModeMavenTransferListener( LoggerFactory.getLogger( "consoleTransfer" ) );
         }
 
         ExecutionListener executionListener = new ExecutionEventLogger( slf4jLogger );

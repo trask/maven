@@ -24,6 +24,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.aether.transfer.AbstractTransferListener;
 import org.sonatype.aether.transfer.TransferCancelledException;
 import org.sonatype.aether.transfer.TransferEvent;
@@ -32,6 +33,8 @@ import org.sonatype.aether.transfer.TransferResource;
 public abstract class AbstractMavenTransferListener
     extends AbstractTransferListener
 {
+
+    protected Logger logger = LoggerFactory.getLogger( getClass() );
 
     protected Logger out;
     //protected PrintStream out;
@@ -47,7 +50,7 @@ public abstract class AbstractMavenTransferListener
     {
         String message = event.getRequestType() == TransferEvent.RequestType.PUT ? "Uploading" : "Downloading";
 
-        out.info( message + ": " + event.getResource().getRepositoryUrl() + event.getResource().getResourceName() );
+        logger.info( message + ": " + event.getResource().getRepositoryUrl() + event.getResource().getResourceName() );
     }
 
     @Override
@@ -56,7 +59,7 @@ public abstract class AbstractMavenTransferListener
     {
         TransferResource resource = event.getResource();
 
-        out.warn( "[WARNING] " + event.getException().getMessage() + " for " + resource.getRepositoryUrl()
+        logger.warn( "[WARNING] " + event.getException().getMessage() + " for " + resource.getRepositoryUrl()
             + resource.getResourceName() );
     }
 
@@ -79,7 +82,7 @@ public abstract class AbstractMavenTransferListener
                 throughput = " at " + format.format( kbPerSec ) + " KB/sec";
             }
 
-            out.info( type + ": " + resource.getRepositoryUrl() + resource.getResourceName() + " (" + len
+            logger.info( type + ": " + resource.getRepositoryUrl() + resource.getResourceName() + " (" + len
                 + throughput + ")" );
         }
     }
