@@ -302,17 +302,20 @@ public class MavenCli
         if ( cliRequest.debug )
         {
             cliRequest.request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_DEBUG );
-            System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "debug" );            
+            System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "debug" );
+            System.setProperty( "maven.logging.root.level", "debug" );
         }
         else if ( cliRequest.quiet )
         {
             cliRequest.request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_ERROR );
-            System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "error" );            
+            System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "error" );
+            System.setProperty( "maven.logging.root.level", "error" );
         }
         else
         {
             cliRequest.request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_INFO );
             System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "info" );
+            System.setProperty( "maven.logging.root.level", "info" );
         }
 
         if ( cliRequest.commandLine.hasOption( CLIManager.LOG_FILE ) )

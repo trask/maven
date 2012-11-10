@@ -19,7 +19,7 @@
   -->
 
 
-<configuration status="debug">
+<configuration> <!--status="debug"-->
   <appenders>
     <Console name="console" target="SYSTEM_OUT">
       <PatternLayout pattern="[%p{WARN=WARNING}] %msg%n"/>
@@ -36,7 +36,7 @@
       <appender-ref ref="console-transfer"/>
     </logger>
 
-    <root level="info">
+    <root level="${sys:maven.logging.root.level}">
       <appender-ref ref="console"/>
     </root>
   </loggers>
