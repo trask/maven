@@ -1,6 +1,6 @@
 package org.apache.maven.cli.transfer;
 
-import org.slf4j.Logger;
+import java.io.PrintStream;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 public class BatchModeMavenTransferListener
     extends AbstractMavenTransferListener
 {
-    public BatchModeMavenTransferListener( Logger out )
+    public BatchModeMavenTransferListener( PrintStream out )
     {
         super( out );
     }
