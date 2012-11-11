@@ -20,6 +20,11 @@
 
 
 <configuration> <!--status="debug"-->
+
+  <properties>
+     <property name="maven.logging.root.level">INFO</property>
+  </properties>
+
   <appenders>
     <Console name="console" target="SYSTEM_OUT">
       <PatternLayout pattern="[%p{WARN=WARNING}] %msg%n"/>
