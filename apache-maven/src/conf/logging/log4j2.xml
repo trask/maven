@@ -27,7 +27,8 @@
 
   <appenders>
     <Console name="console" target="SYSTEM_OUT">
-      <PatternLayout pattern="[%p{WARN=WARNING}] %msg%n"/>
+      <!--PatternLayout pattern="%highlight[%p{WARN=WARNING}] %msg%n{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}"/-->
+      <PatternLayout pattern="%highlight{%c{} [%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
     </Console>
     <Console name="console-transfer" target="SYSTEM_OUT">
       <PatternLayout pattern="[%p{WARN=WARNING}] %msg"/>
@@ -36,6 +37,7 @@
   <loggers>
 
     <logger name="Sisu" level="info"/>
+    <logger name="org.apache.maven.plugins:maven-compiler-plugin:2.3.2:testCompile" level="debug"/>
 
     <logger name="consoleTransfer" level="info" additivity="false">
       <appender-ref ref="console-transfer"/>

@@ -64,6 +64,7 @@ import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.descriptor.Parameter;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptorBuilder;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.codehaus.plexus.PlexusContainer;
@@ -83,6 +84,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.PlexusConfigurationException;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
@@ -109,6 +111,9 @@ public class DefaultMavenPluginManager
 
     @Requirement
     private Logger logger;
+
+    @Requirement
+    private LoggerManager loggerManager;
 
     @Requirement
     private PlexusContainer container;
@@ -437,6 +442,9 @@ public class DefaultMavenPluginManager
         {
             logger.debug( "Configuring mojo " + mojoDescriptor.getId() + " from plugin realm " + pluginRealm );
         }
+        // must be done before TCCL is changed as we use core LoggerManager
+        // logger will have name as: org.apache.maven.plugins:maven-clean-plugin:2.4.1:clean
+        Log log = new DefaultLog( loggerManager.getLoggerForComponent( mojoDescriptor.getRoleHint() ) );
 
         // We are forcing the use of the plugin realm for all lookups that might occur during
         // the lifecycle that is part of the lookup. Here we are specifically trying to keep
@@ -508,7 +516,7 @@ public class DefaultMavenPluginManager
 
             if ( mojo instanceof Mojo )
             {
-                ( (Mojo) mojo ).setLog( new DefaultLog( logger ) );
+                ( (Mojo) mojo ).setLog( log );
             }
 
             Xpp3Dom dom = mojoExecution.getConfiguration();
