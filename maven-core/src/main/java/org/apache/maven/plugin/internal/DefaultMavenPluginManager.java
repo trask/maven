@@ -443,8 +443,8 @@ public class DefaultMavenPluginManager
             logger.debug( "Configuring mojo " + mojoDescriptor.getId() + " from plugin realm " + pluginRealm );
         }
         // must be done before TCCL is changed as we use core LoggerManager
-        // logger will have name as: org.apache.maven.plugins:maven-clean-plugin:2.4.1:clean
-        Log log = new DefaultLog( loggerManager.getLoggerForComponent( mojoDescriptor.getRoleHint() ) );
+        // logger will have name as: org.apache.maven.plugins:maven-clean-plugin
+        Log log = new DefaultLog( loggerManager.getLoggerForComponent( mojoExecution.getPlugin().getGroupId() + ":" + mojoExecution.getPlugin().getArtifactId() ) );
 
         // We are forcing the use of the plugin realm for all lookups that might occur during
         // the lifecycle that is part of the lookup. Here we are specifically trying to keep
