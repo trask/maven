@@ -19,24 +19,6 @@ package org.apache.maven.plugin.internal;
  * under the License.
  */
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.classrealm.ClassRealmManager;
@@ -96,15 +78,33 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.filter.AndDependencyFilter;
 import org.sonatype.aether.util.graph.PreorderNodeListGenerator;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
 /**
  * Provides basic services to manage Maven plugins and their mojos. This component is kept general in its design such
  * that the plugins/mojos can be used in arbitrary contexts. In particular, the mojos can be used for ordinary build
  * plugins as well as special purpose plugins like reports.
- * 
- * @since 3.0
+ *
  * @author Benjamin Bentmann
+ * @since 3.0
  */
-@Component( role = MavenPluginManager.class )
+@Component ( role = MavenPluginManager.class )
 public class DefaultMavenPluginManager
     implements MavenPluginManager
 {
@@ -135,7 +135,8 @@ public class DefaultMavenPluginManager
 
     private PluginDescriptorBuilder builder = new PluginDescriptorBuilder();
 
-    public synchronized PluginDescriptor getPluginDescriptor( Plugin plugin, List<RemoteRepository> repositories, RepositorySystemSession session )
+    public synchronized PluginDescriptor getPluginDescriptor( Plugin plugin, List<RemoteRepository> repositories,
+                                                              RepositorySystemSession session )
         throws PluginResolutionException, PluginDescriptorParsingException, InvalidPluginDescriptorException
     {
         PluginDescriptorCache.Key cacheKey = pluginDescriptorCache.createKey( plugin, repositories, session );
@@ -223,8 +224,8 @@ public class DefaultMavenPluginManager
 
         if ( validator.hasErrors() )
         {
-            throw new InvalidPluginDescriptorException( "Invalid plugin descriptor for " + plugin.getId() + " ("
-                + pluginFile + ")", validator.getErrors() );
+            throw new InvalidPluginDescriptorException(
+                "Invalid plugin descriptor for " + plugin.getId() + " (" + pluginFile + ")", validator.getErrors() );
         }
 
         pluginDescriptor.setPluginArtifact( pluginArtifact );
@@ -285,8 +286,9 @@ public class DefaultMavenPluginManager
             {
                 if ( !runtimeInformation.isMavenVersion( requiredMavenVersion ) )
                 {
-                    throw new PluginIncompatibleException( pluginDescriptor.getPlugin(), "The plugin "
-                        + pluginDescriptor.getId() + " requires Maven version " + requiredMavenVersion );
+                    throw new PluginIncompatibleException( pluginDescriptor.getPlugin(),
+                                                           "The plugin " + pluginDescriptor.getId()
+                                                               + " requires Maven version " + requiredMavenVersion );
                 }
             }
             catch ( RuntimeException e )
@@ -364,7 +366,7 @@ public class DefaultMavenPluginManager
 
         List<Artifact> exposedPluginArtifacts = new ArrayList<Artifact>( nlg.getNodes().size() );
         RepositoryUtils.toArtifacts( exposedPluginArtifacts, Collections.singleton( root ),
-                                     Collections.<String> emptyList(), null );
+                                     Collections.<String>emptyList(), null );
         for ( Iterator<Artifact> it = exposedPluginArtifacts.iterator(); it.hasNext(); )
         {
             Artifact artifact = it.next();
@@ -394,13 +396,15 @@ public class DefaultMavenPluginManager
         }
         catch ( PlexusConfigurationException e )
         {
-            throw new PluginContainerException( plugin, pluginRealm, "Error in component graph of plugin "
-                + plugin.getId() + ": " + e.getMessage(), e );
+            throw new PluginContainerException( plugin, pluginRealm,
+                                                "Error in component graph of plugin " + plugin.getId() + ": "
+                                                    + e.getMessage(), e );
         }
         catch ( CycleDetectedInComponentGraphException e )
         {
-            throw new PluginContainerException( plugin, pluginRealm, "Error in component graph of plugin "
-                + plugin.getId() + ": " + e.getMessage(), e );
+            throw new PluginContainerException( plugin, pluginRealm,
+                                                "Error in component graph of plugin " + plugin.getId() + ": "
+                                                    + e.getMessage(), e );
         }
     }
 
@@ -443,8 +447,9 @@ public class DefaultMavenPluginManager
             logger.debug( "Configuring mojo " + mojoDescriptor.getId() + " from plugin realm " + pluginRealm );
         }
         // must be done before TCCL is changed as we use core LoggerManager
-        // logger will have name as: org.apache.maven.plugins:maven-clean-plugin
-        Log log = new DefaultLog( loggerManager.getLoggerForComponent( mojoExecution.getPlugin().getGroupId() + ":" + mojoExecution.getPlugin().getArtifactId() ) );
+        // logger will have name as: maven-clean-plugin.clean (groupId.goal)
+        String loggerName = mojoExecution.getPlugin().getArtifactId() + "." + mojoExecution.getGoal();
+        Log log = new DefaultLog( loggerManager.getLoggerForComponent( loggerName ) );
 
         // We are forcing the use of the plugin realm for all lookups that might occur during
         // the lifecycle that is part of the lookup. Here we are specifically trying to keep
@@ -476,7 +481,8 @@ public class DefaultMavenPluginManager
                     ByteArrayOutputStream os = new ByteArrayOutputStream( 1024 );
                     PrintStream ps = new PrintStream( os );
                     ps.println( "Unable to load the mojo '" + mojoDescriptor.getGoal() + "' in the plugin '"
-                        + pluginDescriptor.getId() + "'. A required class is missing: " + cause.getMessage() );
+                                    + pluginDescriptor.getId() + "'. A required class is missing: "
+                                    + cause.getMessage() );
                     pluginRealm.display( ps );
 
                     throw new PluginContainerException( mojoDescriptor, pluginRealm, os.toString(), cause );
@@ -486,16 +492,17 @@ public class DefaultMavenPluginManager
                     ByteArrayOutputStream os = new ByteArrayOutputStream( 1024 );
                     PrintStream ps = new PrintStream( os );
                     ps.println( "Unable to load the mojo '" + mojoDescriptor.getGoal() + "' in the plugin '"
-                        + pluginDescriptor.getId() + "' due to an API incompatibility: " + e.getClass().getName()
-                        + ": " + cause.getMessage() );
+                                    + pluginDescriptor.getId() + "' due to an API incompatibility: "
+                                    + e.getClass().getName() + ": " + cause.getMessage() );
                     pluginRealm.display( ps );
 
                     throw new PluginContainerException( mojoDescriptor, pluginRealm, os.toString(), cause );
                 }
 
-                throw new PluginContainerException( mojoDescriptor, pluginRealm, "Unable to load the mojo '"
-                    + mojoDescriptor.getGoal() + "' (or one of its required components) from the plugin '"
-                    + pluginDescriptor.getId() + "'", e );
+                throw new PluginContainerException( mojoDescriptor, pluginRealm,
+                                                    "Unable to load the mojo '" + mojoDescriptor.getGoal()
+                                                        + "' (or one of its required components) from the plugin '"
+                                                        + pluginDescriptor.getId() + "'", e );
             }
 
             if ( mojo instanceof ContextEnabled )
@@ -569,8 +576,8 @@ public class DefaultMavenPluginManager
             ValidatingConfigurationListener validator =
                 new ValidatingConfigurationListener( mojo, mojoDescriptor, listener );
 
-            logger.debug( "Configuring mojo '" + mojoDescriptor.getId() + "' with " + configuratorId
-                + " configurator -->" );
+            logger.debug(
+                "Configuring mojo '" + mojoDescriptor.getId() + "' with " + configuratorId + " configurator -->" );
 
             configurator.configureComponent( mojo, configuration, expressionEvaluator, pluginRealm, validator );
 
@@ -615,7 +622,7 @@ public class DefaultMavenPluginManager
             ByteArrayOutputStream os = new ByteArrayOutputStream( 1024 );
             PrintStream ps = new PrintStream( os );
             ps.println( "A required class was missing during configuration of mojo " + mojoDescriptor.getId() + ": "
-                + e.getMessage() );
+                            + e.getMessage() );
             pluginRealm.display( ps );
 
             throw new PluginConfigurationException( mojoDescriptor.getPluginDescriptor(), os.toString(), e );
@@ -624,8 +631,9 @@ public class DefaultMavenPluginManager
         {
             ByteArrayOutputStream os = new ByteArrayOutputStream( 1024 );
             PrintStream ps = new PrintStream( os );
-            ps.println( "An API incompatibility was encountered during configuration of mojo " + mojoDescriptor.getId()
-                + ": " + e.getClass().getName() + ": " + e.getMessage() );
+            ps.println(
+                "An API incompatibility was encountered during configuration of mojo " + mojoDescriptor.getId() + ": "
+                    + e.getClass().getName() + ": " + e.getMessage() );
             pluginRealm.display( ps );
 
             throw new PluginConfigurationException( mojoDescriptor.getPluginDescriptor(), os.toString(), e );
@@ -682,9 +690,8 @@ public class DefaultMavenPluginManager
                 }
                 catch ( ExpressionEvaluationException e )
                 {
-                    String msg =
-                        "Error evaluating the expression '" + expression + "' for configuration value '"
-                            + configuration.getName() + "'";
+                    String msg = "Error evaluating the expression '" + expression + "' for configuration value '"
+                        + configuration.getName() + "'";
                     throw new ComponentConfigurationException( configuration, msg, e );
                 }
             }

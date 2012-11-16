@@ -38,8 +38,8 @@
 
     <logger name="Sisu" level="info"/>
     <!-- activate debug mode for compiler and surefire plugins -->
-    <logger name="org.apache.maven.plugins:maven-compiler-plugin" level="debug"/>
-    <logger name="org.apache.maven.plugins:maven-surefire-plugin" level="debug"/>
+    <logger name="maven-compiler-plugin" level="debug"/>
+    <logger name="maven-surefire-plugin" level="debug"/>
 
     <logger name="consoleTransfer" level="info" additivity="false">
       <appender-ref ref="console-transfer"/>
