@@ -71,6 +71,7 @@ import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.slf4j.MDC;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.graph.DependencyNode;
@@ -446,10 +447,6 @@ public class DefaultMavenPluginManager
         {
             logger.debug( "Configuring mojo " + mojoDescriptor.getId() + " from plugin realm " + pluginRealm );
         }
-        // must be done before TCCL is changed as we use core LoggerManager
-        // logger will have name as: maven-clean-plugin.clean (groupId.goal)
-        String loggerName = mojoExecution.getPlugin().getArtifactId() + "." + mojoExecution.getGoal();
-        Log log = new DefaultLog( loggerManager.getLoggerForComponent( loggerName ) );
 
         // We are forcing the use of the plugin realm for all lookups that might occur during
         // the lifecycle that is part of the lookup. Here we are specifically trying to keep
@@ -523,7 +520,7 @@ public class DefaultMavenPluginManager
 
             if ( mojo instanceof Mojo )
             {
-                ( (Mojo) mojo ).setLog( log );
+                ( (Mojo) mojo ).setLog( buildLogger( mojoExecution, oldClassLoader, oldLookupRealm, mojo.getClass() ) );
             }
 
             Xpp3Dom dom = mojoExecution.getConfiguration();
@@ -544,6 +541,28 @@ public class DefaultMavenPluginManager
             populatePluginFields( mojo, mojoDescriptor, pluginRealm, pomConfiguration, expressionEvaluator );
 
             return mojo;
+        }
+        finally
+        {
+            Thread.currentThread().setContextClassLoader( oldClassLoader );
+            container.setLookupRealm( oldLookupRealm );
+        }
+    }
+
+    protected Log buildLogger( MojoExecution mojoExecution, ClassLoader coreClassLoader, ClassRealm coreClassRealm,
+                               Class<?> mojoClass )
+    {
+
+        ClassRealm oldLookupRealm = container.setLookupRealm( coreClassRealm );
+
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader( coreClassLoader );
+        try
+        {
+            Log log = new DefaultLog( loggerManager.getLoggerForComponent( mojoClass.getName() ) );
+            // pluginInfo will be: maven-clean-plugin.clean (groupId.goal)
+            MDC.put( "maven.pluginInfo", mojoExecution.getPlugin().getArtifactId() + "." + mojoExecution.getGoal() );
+            return log;
         }
         finally
         {

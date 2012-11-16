@@ -28,18 +28,28 @@
   <appenders>
     <Console name="console" target="SYSTEM_OUT">
       <!--PatternLayout pattern="%highlight[%p{WARN=WARNING}] %msg%n{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}"/-->
-      <PatternLayout pattern="%highlight{%c{} [%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
+      <PatternLayout pattern="%highlight{%c{} %mdc{maven.pluginInfo} [%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
     </Console>
     <Console name="console-transfer" target="SYSTEM_OUT">
       <PatternLayout pattern="[%p{WARN=WARNING}] %msg"/>
+    </Console>
+    <Console name="debug-console" target="SYSTEM_OUT">
+      <!--PatternLayout pattern="%highlight[%p{WARN=WARNING}] %msg%n{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}"/-->
+      <PatternLayout pattern="%highlight{%c{} %mdc{maven.pluginInfo} [%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
     </Console>
   </appenders>
   <loggers>
 
     <logger name="Sisu" level="info"/>
-    <!-- activate debug mode for compiler and surefire plugins -->
-    <logger name="maven-compiler-plugin" level="debug"/>
-    <logger name="maven-surefire-plugin" level="debug"/>
+
+    <logger name="org.apache.maven.plugin" level="debug" additivity="false">
+        <ThreadContextMapFilter operator="or" onMismatch="DENY">
+          <!-- to debug plugins -->
+          <KeyValuePair key="maven.pluginInfo" value="maven-clean-plugin.clean"/>
+          <KeyValuePair key="maven.pluginInfo" value="maven-compiler-plugin.compile"/>
+        </ThreadContextMapFilter>
+      <appender-ref ref="debug-console"/>
+    </logger>
 
     <logger name="consoleTransfer" level="info" additivity="false">
       <appender-ref ref="console-transfer"/>

@@ -27,6 +27,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.slf4j.MDC;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
 
@@ -155,6 +156,9 @@ public class DefaultBuildPluginManager
             Thread.currentThread().setContextClassLoader( oldClassLoader );
 
             legacySupport.setSession( oldSession );
+
+            MDC.remove( "maven.pluginInfo" );
+
         }
     }
 
