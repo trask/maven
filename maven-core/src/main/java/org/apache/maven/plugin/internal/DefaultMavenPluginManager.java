@@ -556,6 +556,9 @@ public class DefaultMavenPluginManager
         ClassRealm oldLookupRealm = container.setLookupRealm( coreClassRealm );
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+
+        // logger build need to be done with core classLoader
+
         Thread.currentThread().setContextClassLoader( coreClassLoader );
         try
         {
