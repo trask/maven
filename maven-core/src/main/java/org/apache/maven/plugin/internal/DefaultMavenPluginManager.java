@@ -448,6 +448,9 @@ public class DefaultMavenPluginManager
             logger.debug( "Configuring mojo " + mojoDescriptor.getId() + " from plugin realm " + pluginRealm );
         }
 
+        String mavenPluginInfo = "maven." + mojoExecution.getPlugin().getArtifactId() + "." + mojoExecution.getGoal();
+        Log log = new DefaultLog( loggerManager.getLoggerForComponent( mavenPluginInfo ) );
+
         // We are forcing the use of the plugin realm for all lookups that might occur during
         // the lifecycle that is part of the lookup. Here we are specifically trying to keep
         // lookups that occur in contextualize calls in line with the right realm.
@@ -520,7 +523,7 @@ public class DefaultMavenPluginManager
 
             if ( mojo instanceof Mojo )
             {
-                ( (Mojo) mojo ).setLog( buildLogger( mojoExecution, oldClassLoader, oldLookupRealm, mojo.getClass() ) );
+                ( (Mojo) mojo ).setLog( log );
             }
 
             Xpp3Dom dom = mojoExecution.getConfiguration();
@@ -541,31 +544,6 @@ public class DefaultMavenPluginManager
             populatePluginFields( mojo, mojoDescriptor, pluginRealm, pomConfiguration, expressionEvaluator );
 
             return mojo;
-        }
-        finally
-        {
-            Thread.currentThread().setContextClassLoader( oldClassLoader );
-            container.setLookupRealm( oldLookupRealm );
-        }
-    }
-
-    protected Log buildLogger( MojoExecution mojoExecution, ClassLoader coreClassLoader, ClassRealm coreClassRealm,
-                               Class<?> mojoClass )
-    {
-
-        ClassRealm oldLookupRealm = container.setLookupRealm( coreClassRealm );
-
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-
-        // logger build need to be done with core classLoader
-
-        Thread.currentThread().setContextClassLoader( coreClassLoader );
-        try
-        {
-            Log log = new DefaultLog( loggerManager.getLoggerForComponent( mojoClass.getName() ) );
-            // pluginInfo will be: maven-clean-plugin.clean (groupId.goal)
-            MDC.put( "maven.pluginInfo", mojoExecution.getPlugin().getArtifactId() + "." + mojoExecution.getGoal() );
-            return log;
         }
         finally
         {
