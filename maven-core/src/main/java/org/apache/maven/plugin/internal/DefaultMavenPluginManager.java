@@ -523,7 +523,8 @@ public class DefaultMavenPluginManager
 
             if ( mojo instanceof Mojo )
             {
-                ( (Mojo) mojo ).setLog( log );
+                Logger mojoLogger = loggerManager.getLoggerForComponent( mojoDescriptor.getImplementation() );
+                ( (Mojo) mojo ).setLog( new DefaultLog( mojoLogger ) );
             }
 
             Xpp3Dom dom = mojoExecution.getConfiguration();
