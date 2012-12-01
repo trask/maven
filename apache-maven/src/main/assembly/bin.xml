@@ -38,6 +38,28 @@ under the License.
         <exclude>org.codehaus.plexus:plexus-classworlds</exclude>
         <exclude>junit:junit</exclude>
         <exclude>commons-logging:commons-logging-api</exclude>
+        <exclude>org.apache.logging.log4j.adapters:log4j-slf4j-impl</exclude>
+        <exclude>org.apache.logging.log4j:*</exclude>
+        <exclude>org.slf4j:slf4j-simple</exclude>
+      </excludes>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>slf4j-simple</outputDirectory>
+      <includes>
+        <include>org.slf4j:slf4j-simple</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>log4j2</outputDirectory>
+      <includes>
+        <include>org.apache.logging.log4j.adapters:log4j-slf4j-impl</include>
+        <include>org.apache.logging.log4j:*</include>
+        <include></include>
+      </includes>
+      <excludes>
+        <exclude>org.slf4j:slf4j-simple</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
