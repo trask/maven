@@ -1170,7 +1170,7 @@ public class MavenCli
     
     protected TransferListener getBatchTransferListener()
     {
-        return new Slf4jMavenTransferListener( slf4jLoggerFactory.getLogger( "console-transfer" ) );
+        return new Slf4jMavenTransferListener( );
     }
     
     protected void customizeContainer( PlexusContainer container )

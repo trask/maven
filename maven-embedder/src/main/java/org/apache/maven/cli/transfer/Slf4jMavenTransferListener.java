@@ -45,6 +45,10 @@ public class Slf4jMavenTransferListener
 
     private int lastLength;
 
+    public Slf4jMavenTransferListener()
+    {
+        this.out = logger;
+    }
 
     public Slf4jMavenTransferListener( Logger out )
     {
