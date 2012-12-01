@@ -19,6 +19,7 @@ package org.apache.maven.cli.startup;
  * under the License.
  */
 
+import org.apache.maven.cli.MavenCli;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
@@ -30,16 +31,26 @@ import java.net.URL;
  */
 public class MavenStartup
 {
+    /**
+     * just here to prevent "warning" from classworld which try to get this method
+     * @param args
+     * @return
+     */
     public static int main( String[] args )
     {
-        //int result = doMain( args, null );
-
+        System.out.println("this main method cannot be used");
         return 1;
     }
 
     public static int main( String[] args, ClassWorld classWorld )
     {
         String loggerImplRealmId = System.getProperty( "maven.logger.impl", "log4j2" );
+
+        // take care of empty sys props !
+        if (loggerImplRealmId == null || loggerImplRealmId.length()<1)
+        {
+            loggerImplRealmId = "log4j2";
+        }
 
         try
         {
@@ -48,7 +59,8 @@ public class MavenStartup
             {
                 classWorld.getRealm( "plexus.core" ).addURL( url );
             }
-            return org.apache.maven.cli.MavenCli.doMain( args, classWorld );
+            //return org.apache.maven.cli.MavenCli.doMain( args, classWorld );
+            return MavenCli.doMain( args, classWorld );
         }
         catch ( NoSuchRealmException e )
         {
