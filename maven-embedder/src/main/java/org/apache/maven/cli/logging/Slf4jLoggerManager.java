@@ -23,6 +23,12 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
+import org.sonatype.aether.transfer.TransferCancelledException;
+import org.sonatype.aether.transfer.TransferEvent;
+import org.sonatype.aether.transfer.TransferResource;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Use an SLF4J {@link org.slf4j.ILoggerFactory} as a backing for a Plexus {@link org.codehaus.plexus.logging.LoggerManager},
@@ -36,6 +42,8 @@ public class Slf4jLoggerManager
 {
 
     private ILoggerFactory loggerFactory;
+
+    private Map<TransferResource, Long> downloads = new ConcurrentHashMap<TransferResource, Long>();
 
     public Slf4jLoggerManager()
     {

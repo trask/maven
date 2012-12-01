@@ -28,14 +28,14 @@
   <appenders>
     <Console name="console" target="SYSTEM_OUT">
       <!--PatternLayout pattern="%highlight[%p{WARN=WARNING}] %msg%n{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}"/-->
-      <PatternLayout pattern="%highlight{%c{} [%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
+      <PatternLayout pattern="%highlight{[%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
     </Console>
     <Console name="console-transfer" target="SYSTEM_OUT">
       <PatternLayout pattern="[%p{WARN=WARNING}] %msg"/>
     </Console>
     <Console name="debug-console" target="SYSTEM_OUT">
       <!--PatternLayout pattern="%highlight[%p{WARN=WARNING}] %msg%n{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}"/-->
-      <PatternLayout pattern="%highlight{%c{} [%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
+      <PatternLayout pattern="%highlight{[%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
     </Console>
   </appenders>
   <loggers>
@@ -50,7 +50,7 @@
       <appender-ref ref="debug-console"/>
     </logger>
 
-    <logger name="consoleTransfer" level="info" additivity="false">
+    <logger name="console-transfer" level="info" additivity="false">
       <appender-ref ref="console-transfer"/>
     </logger>
 

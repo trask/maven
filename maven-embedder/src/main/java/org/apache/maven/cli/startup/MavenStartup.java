@@ -31,6 +31,8 @@ import java.net.URL;
  */
 public class MavenStartup
 {
+    private static final String DEFAULT_LOGGING_REALM = "log4j2";
+
     /**
      * just here to prevent "warning" from classworld which try to get this method
      * @param args
@@ -44,28 +46,49 @@ public class MavenStartup
 
     public static int main( String[] args, ClassWorld classWorld )
     {
-        String loggerImplRealmId = System.getProperty( "maven.logger.impl", "log4j2" );
+        String loggerImplRealmId = System.getProperty( "maven.logger.impl", DEFAULT_LOGGING_REALM );
 
         // take care of empty sys props !
         if (loggerImplRealmId == null || loggerImplRealmId.length()<1)
         {
-            loggerImplRealmId = "log4j2";
+            loggerImplRealmId = DEFAULT_LOGGING_REALM;
         }
 
         try
         {
-            ClassRealm classRealm = classWorld.getRealm( loggerImplRealmId );
+            ClassRealm classRealm = getLoggingClassRealm( loggerImplRealmId, classWorld );
+            if (classRealm == null)
+            {
+                classRealm = classWorld.getClassRealm( DEFAULT_LOGGING_REALM );
+            }
             for (URL url : classRealm.getURLs())
             {
                 classWorld.getRealm( "plexus.core" ).addURL( url );
             }
-            //return org.apache.maven.cli.MavenCli.doMain( args, classWorld );
             return MavenCli.doMain( args, classWorld );
         }
         catch ( NoSuchRealmException e )
         {
+            System.out.println("Issue configuring Apache Maven: " + e.getMessage());
             e.printStackTrace();
         }
+
         return 1;
+    }
+
+    private static ClassRealm getLoggingClassRealm(String loggerImplRealmId, ClassWorld classWorld)
+    {
+        ClassRealm classRealm = null;
+        try
+        {
+            classRealm = classWorld.getRealm( loggerImplRealmId );
+        }
+        catch ( NoSuchRealmException e )
+        {
+            System.out.println("Cannot find realm logger with id: '" + loggerImplRealmId + "', revert to default");
+            return null;
+        }
+
+        return classRealm;
     }
 }

@@ -1155,15 +1155,22 @@ public class MavenCli
     //
     // Customizations available via the CLI
     //
-    
-    protected TransferListener getConsoleTransferListener() 
+
+    protected TransferListener getConsoleTransferListener()
     {
-        return new ConsoleMavenTransferListener( System.out );
+        Logger logger = slf4jLoggerFactory.getLogger( "console-transfer" );
+        // in case of slf4j-simple we use system.out as transfer listener
+        if ( "org.slf4j.impl.SimpleLogger".equals( logger.getClass().getName() ) )
+        {
+            return new ConsoleMavenTransferListener( System.out );
+        }
+        // we use a different logger here as we don't want to go to line after each log statement
+        return new Slf4jMavenTransferListener( logger );
     }
     
     protected TransferListener getBatchTransferListener()
     {
-        return new Slf4jMavenTransferListener();
+        return new Slf4jMavenTransferListener( slf4jLoggerFactory.getLogger( "console-transfer" ) );
     }
     
     protected void customizeContainer( PlexusContainer container )

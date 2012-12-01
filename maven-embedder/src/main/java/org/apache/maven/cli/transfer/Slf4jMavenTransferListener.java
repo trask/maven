@@ -22,6 +22,8 @@ package org.apache.maven.cli.transfer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +36,16 @@ public class Slf4jMavenTransferListener
     extends AbstractTransferListener
 {
 
-    protected final Logger out;
+    protected Logger logger = LoggerFactory.getLogger( getClass() );
 
-    public Slf4jMavenTransferListener()
-    {
-        this.out = LoggerFactory.getLogger( Slf4jMavenTransferListener.class );
-    }
+    protected Logger out;
 
-    // TODO should we deprecate?
+
+    private Map<TransferResource, Long> downloads = new ConcurrentHashMap<TransferResource, Long>();
+
+    private int lastLength;
+
+
     public Slf4jMavenTransferListener( Logger out )
     {
         this.out = out;
@@ -52,7 +56,7 @@ public class Slf4jMavenTransferListener
     {
         String message = event.getRequestType() == TransferEvent.RequestType.PUT ? "Uploading" : "Downloading";
 
-        out.info( message + ": " + event.getResource().getRepositoryUrl() + event.getResource().getResourceName() );
+        logger.info( message + ": " + event.getResource().getRepositoryUrl() + event.getResource().getResourceName() );
     }
 
     @Override
@@ -61,12 +65,80 @@ public class Slf4jMavenTransferListener
     {
         TransferResource resource = event.getResource();
 
-        out.warn( event.getException().getMessage() + " for " + resource.getRepositoryUrl() + resource.getResourceName() );
+        logger.warn( "[WARNING] " + event.getException().getMessage() + " for " + resource.getRepositoryUrl()
+                         + resource.getResourceName() );
+    }
+
+    protected long toKB( long bytes )
+    {
+        return ( bytes + 1023 ) / 1024;
+    }
+
+
+    @Override
+    public void transferProgressed( TransferEvent event )
+        throws TransferCancelledException
+    {
+        TransferResource resource = event.getResource();
+        downloads.put( resource, Long.valueOf( event.getTransferredBytes() ) );
+
+        StringBuilder buffer = new StringBuilder( 64 );
+
+        for ( Map.Entry<TransferResource, Long> entry : downloads.entrySet() )
+        {
+            long total = entry.getKey().getContentLength();
+            Long complete = entry.getValue();
+            // NOTE: This null check guards against http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6312056
+            if ( complete != null )
+            {
+                buffer.append( getStatus( complete.longValue(), total ) ).append( "  " );
+            }
+        }
+
+        int pad = lastLength - buffer.length();
+        lastLength = buffer.length();
+        pad( buffer, pad );
+        buffer.append( '\r' );
+
+        out.info( buffer.toString() );
+    }
+
+    private String getStatus( long complete, long total )
+    {
+        if ( total >= 1024 )
+        {
+            return toKB( complete ) + "/" + toKB( total ) + " KB ";
+        }
+        else if ( total >= 0 )
+        {
+            return complete + "/" + total + " B ";
+        }
+        else if ( complete >= 1024 )
+        {
+            return toKB( complete ) + " KB ";
+        }
+        else
+        {
+            return complete + " B ";
+        }
+    }
+
+    private void pad( StringBuilder buffer, int spaces )
+    {
+        String block = "                                        ";
+        while ( spaces > 0 )
+        {
+            int n = Math.min( spaces, block.length() );
+            buffer.append( block, 0, n );
+            spaces -= n;
+        }
     }
 
     @Override
     public void transferSucceeded( TransferEvent event )
     {
+        transferCompleted( event );
+
         TransferResource resource = event.getResource();
         long contentLength = event.getTransferredBytes();
         if ( contentLength >= 0 )
@@ -83,14 +155,29 @@ public class Slf4jMavenTransferListener
                 throughput = " at " + format.format( kbPerSec ) + " KB/sec";
             }
 
-            out.info( type + ": " + resource.getRepositoryUrl() + resource.getResourceName() + " (" + len
-                + throughput + ")" );
+            logger.info(
+                type + ": " + resource.getRepositoryUrl() + resource.getResourceName() + " (" + len + throughput
+                    + ")" );
         }
     }
 
-    protected long toKB( long bytes )
+    @Override
+    public void transferFailed( TransferEvent event )
     {
-        return ( bytes + 1023 ) / 1024;
+        transferCompleted( event );
+
+        super.transferFailed( event );
     }
+
+    private void transferCompleted( TransferEvent event )
+    {
+        downloads.remove( event.getResource() );
+
+        StringBuilder buffer = new StringBuilder( 64 );
+        pad( buffer, lastLength );
+        buffer.append( '\r' );
+        out.info( buffer.toString() );
+    }
+
 
 }

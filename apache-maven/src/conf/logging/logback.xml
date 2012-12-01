@@ -25,6 +25,16 @@
     </encoder>
   </appender>
 
+  <appender name="console-transfer" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>[%-5level] %msg</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="console-transfer" level="info" additivity="false">
+    <appender-ref ref="console-transfer"/>
+  </logger>
+
   <root level="${maven.logging.root.level}">
     <appender-ref ref="STDOUT" />
   </root>
