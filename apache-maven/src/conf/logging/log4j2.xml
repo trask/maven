@@ -28,32 +28,35 @@
   <appenders>
     <Console name="console" target="SYSTEM_OUT">
       <!--PatternLayout pattern="%highlight[%p{WARN=WARNING}] %msg%n{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}"/-->
-      <PatternLayout pattern="%highlight{%c{} [%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
+      <PatternLayout pattern="%highlight{[%p] %msg%n%throwable}{INFO=white}" />
     </Console>
     <Console name="console-transfer" target="SYSTEM_OUT">
       <PatternLayout pattern="[%p{WARN=WARNING}] %msg"/>
     </Console>
     <Console name="debug-console" target="SYSTEM_OUT">
       <!--PatternLayout pattern="%highlight[%p{WARN=WARNING}] %msg%n{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}"/-->
-      <PatternLayout pattern="%highlight{%c{} [%p] %msg%n%throwable}{FATAL=white, ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}" />
+      <PatternLayout pattern="%highlight{%c{} %mdc{maven.pluginInfo} [%p] %msg%n%throwable}{INFO=white}" />
     </Console>
   </appenders>
   <loggers>
 
     <logger name="Sisu" level="info"/>
 
-    <logger name="maven.maven-clean-plugin" level="debug" additivity="false">
+    <!-- to debug plugins -->
+    <!--
+    <logger name="org.apache.maven.plugins.enforcer" level="debug" additivity="false">
       <appender-ref ref="debug-console"/>
     </logger>
-
-    <logger name="maven.maven-compiler-plugin" level="debug" additivity="false">
+    <logger name="org.apache.maven.plugin.compiler" level="debug" additivity="false">
       <appender-ref ref="debug-console"/>
     </logger>
-
+    <logger name="org.apache.maven.plugin.clean" level="debug" additivity="false">
+      <appender-ref ref="debug-console"/>
+    </logger>
+    -->
     <logger name="consoleTransfer" level="info" additivity="false">
       <appender-ref ref="console-transfer"/>
     </logger>
-
     <root level="${sys:maven.logging.root.level}">
       <appender-ref ref="console"/>
     </root>
