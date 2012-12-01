@@ -41,6 +41,7 @@ under the License.
         <exclude>org.apache.logging.log4j.adapters:log4j-slf4j-impl</exclude>
         <exclude>org.apache.logging.log4j:*</exclude>
         <exclude>org.slf4j:slf4j-simple</exclude>
+        <exclude>ch.qos.logback:*</exclude>
       </excludes>
     </dependencySet>
     <dependencySet>
@@ -56,6 +57,16 @@ under the License.
       <includes>
         <include>org.apache.logging.log4j.adapters:log4j-slf4j-impl</include>
         <include>org.apache.logging.log4j:*</include>
+      </includes>
+      <excludes>
+        <exclude>org.slf4j:slf4j-simple</exclude>
+      </excludes>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>logback</outputDirectory>
+      <includes>
+        <include>ch.qos.logback:*</include>
         <include></include>
       </includes>
       <excludes>
