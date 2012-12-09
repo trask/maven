@@ -3,9 +3,9 @@
     <withJansi>true</withJansi>
     <encoder>
       <!--
-      <pattern>[%level] %msg%n</pattern>
-      -->
       <pattern>%highlight([%level]) %black(%msg) %n</pattern>      
+      -->
+      <pattern>[%replace(%level){'WARN','WARNING'}] %msg%n</pattern>
     </encoder>
   </appender>
   <root level="INFO">
