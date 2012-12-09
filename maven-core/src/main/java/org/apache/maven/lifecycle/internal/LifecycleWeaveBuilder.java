@@ -277,8 +277,8 @@ public class LifecycleWeaveBuilder
                 }
                 catch ( Exception e )
                 {
-                    builderCommon.handleBuildError( reactorContext, rootSession, projectBuild.getProject(), e,
-                                                    buildStartTime );
+                    builderCommon.handleBuildError( reactorContext, rootSession, projectBuild.getSession(),
+                                                    projectBuild.getProject(), e, buildStartTime );
                 }
                 finally
                 {
@@ -375,13 +375,14 @@ public class LifecycleWeaveBuilder
         return null;
     }
 
-    private static boolean isThreadLockedAndEmpty(Artifact artifact){
-        return artifact instanceof  ThreadLockedArtifact && !((ThreadLockedArtifact) artifact).hasReal();
+    private static boolean isThreadLockedAndEmpty( Artifact artifact )
+    {
+        return artifact instanceof ThreadLockedArtifact && !( (ThreadLockedArtifact) artifact ).hasReal();
     }
 
     private static Artifact findDependency( MavenProject project, Artifact upStreamArtifact )
     {
-        if ( upStreamArtifact == null || isThreadLockedAndEmpty(upStreamArtifact))
+        if ( upStreamArtifact == null || isThreadLockedAndEmpty( upStreamArtifact ) )
         {
             return null;
         }
@@ -483,8 +484,6 @@ public class LifecycleWeaveBuilder
             artifactInThis.setFile( upstream.getFile() );
             artifactInThis.setRepository( upstream.getRepository() );
             artifactInThis.setResolved( true ); // Or maybe upstream.isResolved()....
-
         }
     }
-
 }

@@ -56,7 +56,6 @@ import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.lifecycle.internal.LifecycleWeaveBuilder;
 import org.apache.maven.model.building.ModelProcessor;
-import org.apache.maven.plugin.PluginRealmCache;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.properties.internal.EnvironmentUtils;
 import org.apache.maven.settings.building.DefaultSettingsBuildingRequest;
@@ -234,7 +233,7 @@ public class MavenCli
         }
         finally
         {
-            if (localContainer != null)
+            if ( localContainer != null )
             {
                 localContainer.dispose();
             }
@@ -895,7 +894,7 @@ public class MavenCli
             transferListener = getBatchTransferListener();
         }
 
-        ExecutionListener executionListener = new ExecutionEventLogger( slf4jLogger );
+        ExecutionListener executionListener = new ExecutionEventLogger();
         executionListener = eventSpyDispatcher.chainListener( executionListener );
 
         String alternatePomFile = null;
@@ -1161,7 +1160,7 @@ public class MavenCli
     
     protected TransferListener getBatchTransferListener()
     {
-        return new Slf4jMavenTransferListener( slf4jLogger );
+        return new Slf4jMavenTransferListener();
     }
     
     protected void customizeContainer( PlexusContainer container )

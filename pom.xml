@@ -42,7 +42,7 @@
   <inceptionYear>2001</inceptionYear>
 
   <properties>
-    <classWorldsVersion>2.4.1</classWorldsVersion>
+    <classWorldsVersion>2.4.2</classWorldsVersion>
     <commonsCliVersion>1.2</commonsCliVersion>
     <easyMockVersion>1.2_Java1.3</easyMockVersion>
     <junitVersion>3.8.2</junitVersion>
@@ -86,9 +86,10 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/maven/maven-3/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/maven/maven-3/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/maven/maven-3/trunk</url>
+    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/maven.git</connection>
+    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/maven.git</developerConnection>
+    <url>https://git-wip-us.apache.org/repos/asf?p=maven.git</url>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>jira</system>
@@ -406,12 +407,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.2-beta-5</version>
+          <version>2.4</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.0</version>
+          <version>1.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
