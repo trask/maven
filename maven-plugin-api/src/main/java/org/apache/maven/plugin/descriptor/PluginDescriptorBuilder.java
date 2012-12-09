@@ -66,6 +66,13 @@ public class PluginDescriptorBuilder
             pluginDescriptor.setIsolatedRealm( Boolean.parseBoolean( isolatedRealm ) );
         }
 
+        String importSlf4jApi = c.getChild( "importSlf4jApi" ).getValue();
+
+        if ( importSlf4jApi != null )
+        {
+            pluginDescriptor.setImportSlf4jApi( Boolean.parseBoolean( importSlf4jApi ) );
+        }
+
         String inheritedByDefault = c.getChild( "inheritedByDefault" ).getValue();
 
         if ( inheritedByDefault != null )

@@ -87,9 +87,30 @@ public class PluginDescriptor
 
     private Map<String, Lifecycle> lifecycleMappings;
 
+    /**
+     * @since 3.1.0
+     */
+    private boolean importSlf4jApi = false;
+
     // ----------------------------------------------------------------------
     //
     // ----------------------------------------------------------------------
+
+    /**
+     * @since 3.1.0
+     */
+    public boolean isImportSlf4jApi()
+    {
+        return importSlf4jApi;
+    }
+
+    /**
+     * @since 3.1.0
+     */
+    public void setImportSlf4jApi( boolean importSlf4jApi )
+    {
+        this.importSlf4jApi = importSlf4jApi;
+    }
 
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     public List<MojoDescriptor> getMojos()
