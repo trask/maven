@@ -1,0 +1,17 @@
+<configuration>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <withJansi>true</withJansi>
+    <encoder>
+      <!--
+       |
+       | If you wish to customize the coloured output you can refer 
+       | to http://logback.qos.ch/manual/layouts.html#coloring
+       |
+       -->
+      <pattern>%highlight([%replace(%level){'WARN','WARNING'}]) %black(%msg) %n</pattern>      
+    </encoder>
+  </appender>
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
