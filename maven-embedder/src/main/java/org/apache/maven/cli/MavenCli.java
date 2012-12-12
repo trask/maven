@@ -38,7 +38,6 @@ import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.SimpleFormatter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -316,7 +315,7 @@ public class MavenCli
         if ( cliRequest.debug )
         {
             cliRequest.request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_DEBUG );
-            setRootLoggerLevel( Level.FINEST );
+            setRootLoggerLevel( Level.FINE );
         }
         else if ( cliRequest.quiet )
         {
@@ -364,9 +363,28 @@ public class MavenCli
             public String format( LogRecord record )
             {
                 StringBuilder sb = new StringBuilder();
-                sb.append( '[' );
-                sb.append( record.getLevel().getLocalizedName() );
-                sb.append( "] " );
+                if ( Level.INFO.equals( record.getLevel() ) )
+                {
+                    sb.append( "[INFO] " );
+                }
+                else if ( Level.WARNING.equals( record.getLevel() ) )
+                {
+                    sb.append( "[WARNING] " );
+                }
+                else if ( Level.SEVERE.equals( record.getLevel() ) )
+                {
+                    sb.append( "[ERROR] " );
+                }
+                else if ( Level.FINE.equals( record.getLevel() ) )
+                {
+                    sb.append( "[DEBUG] " );
+                }
+                else
+                {
+                    sb.append( '[' );
+                    sb.append( record.getLevel().getLocalizedName() );
+                    sb.append( "] " );
+                }
                 sb.append( formatMessage( record ) );
                 sb.append( lineSeparator );
                 if ( record.getThrown() != null )
