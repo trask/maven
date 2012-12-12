@@ -391,6 +391,7 @@ public class MavenCli
             logger.removeHandler( h );
         }
         logger.addHandler( consoleHandler );
+        logger.setLevel( level );
     }
 
     private void version( CliRequest cliRequest )
