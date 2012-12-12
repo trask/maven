@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
+import org.apache.log4j.Level;
 import org.apache.maven.BuildAbort;
 import org.apache.maven.InternalErrorException;
 import org.apache.maven.Maven;
@@ -77,6 +78,7 @@ import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.impl.Log4jLoggerAdapter;
 import org.sonatype.aether.transfer.TransferListener;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -116,9 +118,9 @@ public class MavenCli
     private LoggerManager plexusLoggerManager;
 
     private ILoggerFactory slf4jLoggerFactory;
-    
+
     private Logger slf4jLogger;
-    
+
     private EventSpyDispatcher eventSpyDispatcher;
 
     private ModelProcessor modelProcessor;
@@ -263,7 +265,8 @@ public class MavenCli
         throws Exception
     {
         //
-        // Parsing errors can happen during the processing of the arguments and we prefer not having to check if the logger is null
+        // Parsing errors can happen during the processing of the arguments and we prefer not having to check if the
+        // logger is null
         // and construct this so we can use an SLF4J logger everywhere.
         //
         slf4jLogger = new Slf4jStdoutLogger();
@@ -292,7 +295,7 @@ public class MavenCli
             System.out.println( CLIReportingUtils.showVersion() );
             throw new ExitException( 0 );
         }
-    }    
+    }
 
     //
     // All logging is handled by SFL4J
@@ -306,24 +309,23 @@ public class MavenCli
         if ( cliRequest.debug )
         {
             cliRequest.request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_DEBUG );
-            System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "debug" );            
+            setRootLoggerLevel( Level.DEBUG  );
         }
         else if ( cliRequest.quiet )
         {
             cliRequest.request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_ERROR );
-            System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "error" );            
+            setRootLoggerLevel( Level.ERROR  );
         }
         else
         {
             cliRequest.request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_INFO );
-            System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "info" );
+            setRootLoggerLevel( Level.INFO  );
         }
 
         if ( cliRequest.commandLine.hasOption( CLIManager.LOG_FILE ) )
         {
             File logFile = new File( cliRequest.commandLine.getOptionValue( CLIManager.LOG_FILE ) );
             logFile = resolveFile( logFile, cliRequest.workingDirectory );
-            System.setProperty( "org.slf4j.simpleLogger.logFile", logFile.getAbsolutePath() );
             try
             {
                 PrintStream ps = new PrintStream( new FileOutputStream( logFile ) );
@@ -341,6 +343,11 @@ public class MavenCli
         plexusLoggerManager = new Slf4jLoggerManager();
         slf4jLoggerFactory = LoggerFactory.getILoggerFactory();
         slf4jLogger = slf4jLoggerFactory.getLogger( this.getClass().getName() );
+    }
+
+    public void setRootLoggerLevel( Level level )
+    {
+        org.apache.log4j.Logger.getRootLogger().setLevel( level );
     }
 
     private void version( CliRequest cliRequest )
@@ -383,29 +390,27 @@ public class MavenCli
 
         DefaultPlexusContainer container = null;
 
-            ContainerConfiguration cc = new DefaultContainerConfiguration()
-                .setClassWorld( cliRequest.classWorld )
-                .setRealm( setupContainerRealm( cliRequest ) )
-                .setClassPathScanning( PlexusConstants.SCANNING_INDEX )
-                .setAutoWiring( true )
-                .setName( "maven" );
+        ContainerConfiguration cc =
+            new DefaultContainerConfiguration().setClassWorld( cliRequest.classWorld ).setRealm(
+                setupContainerRealm( cliRequest ) ).setClassPathScanning(
+                PlexusConstants.SCANNING_INDEX ).setAutoWiring( true ).setName( "maven" );
 
-            container = new DefaultPlexusContainer( cc, new AbstractModule()
+        container = new DefaultPlexusContainer( cc, new AbstractModule()
+        {
+
+            protected void configure()
             {
+                bind( ILoggerFactory.class ).toInstance( slf4jLoggerFactory );
+            }
 
-                protected void configure()
-                {
-                    bind( ILoggerFactory.class ).toInstance( slf4jLoggerFactory );
-                }
+        } );
 
-            } );
+        // NOTE: To avoid inconsistencies, we'll use the TCCL exclusively for lookups
+        container.setLookupRealm( null );
 
-            // NOTE: To avoid inconsistencies, we'll use the TCCL exclusively for lookups
-            container.setLookupRealm( null );
+        container.setLoggerManager( plexusLoggerManager );
 
-            container.setLoggerManager( plexusLoggerManager );
-
-            customizeContainer( container );
+        customizeContainer( container );
 
         container.getLoggerManager().setThresholds( cliRequest.request.getLoggingLevel() );
 
@@ -578,7 +583,7 @@ public class MavenCli
             {
                 slf4jLogger.error( "" );
                 slf4jLogger.error( "For more information about the errors and possible solutions"
-                              + ", please read the following articles:" );
+                    + ", please read the following articles:" );
 
                 for ( Map.Entry<String, String> entry : references.entrySet() )
                 {
@@ -610,8 +615,7 @@ public class MavenCli
         }
     }
 
-    private void logSummary( ExceptionSummary summary, Map<String, String> references, String indent,
-                             boolean showErrors )
+    private void logSummary( ExceptionSummary summary, Map<String, String> references, String indent, boolean showErrors )
     {
         String referenceKey = "";
 
@@ -675,8 +679,7 @@ public class MavenCli
 
             if ( !userSettingsFile.isFile() )
             {
-                throw new FileNotFoundException( "The specified user settings file does not exist: "
-                    + userSettingsFile );
+                throw new FileNotFoundException( "The specified user settings file does not exist: " + userSettingsFile );
             }
         }
         else
@@ -880,7 +883,7 @@ public class MavenCli
         if ( quiet )
         {
             transferListener = new QuietMavenTransferListener();
-        }        
+        }
         else if ( request.isInteractiveMode() && !cliRequest.commandLine.hasOption( CLIManager.LOG_FILE ) )
         {
             //
@@ -914,20 +917,22 @@ public class MavenCli
             userToolchainsFile = MavenCli.DEFAULT_USER_TOOLCHAINS_FILE;
         }
 
-        request.setBaseDirectory( baseDirectory ).setGoals( goals )
-            .setSystemProperties( cliRequest.systemProperties )
-            .setUserProperties( cliRequest.userProperties )
-            .setReactorFailureBehavior( reactorFailureBehaviour ) // default: fail fast
-            .setRecursive( recursive ) // default: true
-            .setShowErrors( showErrors ) // default: false
-            .addActiveProfiles( activeProfiles ) // optional
-            .addInactiveProfiles( inactiveProfiles ) // optional
-            .setExecutionListener( executionListener )
-            .setTransferListener( transferListener ) // default: batch mode which goes along with interactive
-            .setUpdateSnapshots( updateSnapshots ) // default: false
-            .setNoSnapshotUpdates( noSnapshotUpdates ) // default: false
-            .setGlobalChecksumPolicy( globalChecksumPolicy ) // default: warn
-            .setUserToolchainsFile( userToolchainsFile );
+        request.setBaseDirectory( baseDirectory ).setGoals( goals ).setSystemProperties(
+            cliRequest.systemProperties ).setUserProperties( cliRequest.userProperties ).setReactorFailureBehavior(
+            reactorFailureBehaviour ) // default:
+                                                                                                                                                                                                                           // fail
+                                                                                                                                                                                                                           // fast
+        .setRecursive( recursive ) // default: true
+        .setShowErrors( showErrors ) // default: false
+        .addActiveProfiles( activeProfiles ) // optional
+        .addInactiveProfiles( inactiveProfiles ) // optional
+        .setExecutionListener( executionListener ).setTransferListener( transferListener ) // default: batch mode which
+                                                                                           // goes along with
+                                                                                           // interactive
+        .setUpdateSnapshots( updateSnapshots ) // default: false
+        .setNoSnapshotUpdates( noSnapshotUpdates ) // default: false
+        .setGlobalChecksumPolicy( globalChecksumPolicy ) // default: warn
+        .setUserToolchainsFile( userToolchainsFile );
 
         if ( alternatePomFile != null )
         {
@@ -971,18 +976,17 @@ public class MavenCli
             request.setSelectedProjects( projects );
         }
 
-        if ( commandLine.hasOption( CLIManager.ALSO_MAKE )
-                        && !commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
+        if ( commandLine.hasOption( CLIManager.ALSO_MAKE ) && !commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
         {
             request.setMakeBehavior( MavenExecutionRequest.REACTOR_MAKE_UPSTREAM );
         }
         else if ( !commandLine.hasOption( CLIManager.ALSO_MAKE )
-                        && commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
+            && commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
         {
             request.setMakeBehavior( MavenExecutionRequest.REACTOR_MAKE_DOWNSTREAM );
         }
         else if ( commandLine.hasOption( CLIManager.ALSO_MAKE )
-                        && commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
+            && commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
         {
             request.setMakeBehavior( MavenExecutionRequest.REACTOR_MAKE_BOTH );
         }
@@ -999,10 +1003,13 @@ public class MavenCli
             request.setLocalRepositoryPath( localRepoProperty );
         }
 
-        final String threadConfiguration = commandLine.hasOption( CLIManager.THREADS )
-            ? commandLine.getOptionValue( CLIManager.THREADS )
-            : request.getSystemProperties().getProperty(
-                MavenCli.THREADS_DEPRECATED ); // TODO: Remove this setting. Note that the int-tests use it
+        final String threadConfiguration =
+            commandLine.hasOption( CLIManager.THREADS ) ? commandLine.getOptionValue( CLIManager.THREADS )
+                            : request.getSystemProperties().getProperty( MavenCli.THREADS_DEPRECATED ); // TODO: Remove
+                                                                                                        // this setting.
+                                                                                                        // Note that the
+                                                                                                        // int-tests use
+                                                                                                        // it
 
         if ( threadConfiguration != null )
         {
@@ -1069,7 +1076,7 @@ public class MavenCli
         }
 
         systemProperties.putAll( System.getProperties() );
-        
+
         // ----------------------------------------------------------------------
         // Properties containing info about the currently running version of Maven
         // These override any corresponding properties set on the command line
@@ -1148,21 +1155,21 @@ public class MavenCli
         }
 
     }
-    
+
     //
     // Customizations available via the CLI
     //
-    
-    protected TransferListener getConsoleTransferListener() 
+
+    protected TransferListener getConsoleTransferListener()
     {
         return new ConsoleMavenTransferListener( System.out );
     }
-    
+
     protected TransferListener getBatchTransferListener()
     {
         return new Slf4jMavenTransferListener();
     }
-    
+
     protected void customizeContainer( PlexusContainer container )
     {
     }
@@ -1171,5 +1178,5 @@ public class MavenCli
         throws ComponentLookupException
     {
         return container.lookup( ModelProcessor.class );
-    }        
+    }
 }
