@@ -78,7 +78,6 @@ import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.impl.Log4jLoggerAdapter;
 import org.sonatype.aether.transfer.TransferListener;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -391,9 +390,7 @@ public class MavenCli
         DefaultPlexusContainer container = null;
 
         ContainerConfiguration cc =
-            new DefaultContainerConfiguration().setClassWorld( cliRequest.classWorld ).setRealm(
-                setupContainerRealm( cliRequest ) ).setClassPathScanning(
-                PlexusConstants.SCANNING_INDEX ).setAutoWiring( true ).setName( "maven" );
+            new DefaultContainerConfiguration().setClassWorld( cliRequest.classWorld ).setRealm( setupContainerRealm( cliRequest ) ).setClassPathScanning( PlexusConstants.SCANNING_INDEX ).setAutoWiring( true ).setName( "maven" );
 
         container = new DefaultPlexusContainer( cc, new AbstractModule()
         {
@@ -917,9 +914,7 @@ public class MavenCli
             userToolchainsFile = MavenCli.DEFAULT_USER_TOOLCHAINS_FILE;
         }
 
-        request.setBaseDirectory( baseDirectory ).setGoals( goals ).setSystemProperties(
-            cliRequest.systemProperties ).setUserProperties( cliRequest.userProperties ).setReactorFailureBehavior(
-            reactorFailureBehaviour ) // default:
+        request.setBaseDirectory( baseDirectory ).setGoals( goals ).setSystemProperties( cliRequest.systemProperties ).setUserProperties( cliRequest.userProperties ).setReactorFailureBehavior( reactorFailureBehaviour ) // default:
                                                                                                                                                                                                                            // fail
                                                                                                                                                                                                                            // fast
         .setRecursive( recursive ) // default: true
@@ -1125,14 +1120,23 @@ public class MavenCli
     static class CliRequest
     {
         String[] args;
+
         CommandLine commandLine;
+
         ClassWorld classWorld;
+
         String workingDirectory;
+
         boolean debug;
+
         boolean quiet;
+
         boolean showErrors = true;
+
         Properties userProperties = new Properties();
+
         Properties systemProperties = new Properties();
+
         MavenExecutionRequest request;
 
         CliRequest( String[] args, ClassWorld classWorld )
