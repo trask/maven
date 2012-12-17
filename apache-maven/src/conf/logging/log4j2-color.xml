@@ -25,7 +25,7 @@
   </properties>
   <appenders>
     <Console name="console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%highlight{[%p] %msg%n%throwable}{INFO=white}" />
+      <PatternLayout pattern="%highlight{[%p{WARN=WARNING}] %msg%n%throwable}{INFO=white}" />
     </Console>
   </appenders>
   <loggers>

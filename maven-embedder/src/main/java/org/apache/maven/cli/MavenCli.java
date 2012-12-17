@@ -324,7 +324,7 @@ public class MavenCli
         {
             File logFile = new File( cliRequest.commandLine.getOptionValue( CLIManager.LOG_FILE ) );
             logFile = resolveFile( logFile, cliRequest.workingDirectory );
-            System.setProperty("log4j.configurationFile", logFile.getAbsolutePath() );
+
             try
             {
                 PrintStream ps = new PrintStream( new FileOutputStream( logFile ) );
