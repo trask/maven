@@ -943,6 +943,28 @@
           <type>String</type>
         </field>
         <field>
+          <!-- MNG-2216 -->
+          <name>sourceEncoding</name>
+          <version>5.0.0+</version>
+          <required>true</required>
+          <description>
+          <![CDATA[
+              The encoding for the source files.
+              Projects depending on the 4.0.0 modelVersion 
+              <pre>
+                <project>
+                  ...
+                  <properties>
+                    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                  </properties>
+                  ...
+                </project>
+              </pre> 
+            ]]>
+          </description>
+          <type>String</type>
+        </field>
+        <field>
           <name>scriptSourceDirectory</name>
           <version>4.0.0+</version>
           <required>true</required>
